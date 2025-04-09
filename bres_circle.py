@@ -4,12 +4,16 @@ import time
 import win32gui, win32con  
 
 class CircleDrawer:
-    def __init__(self, width=800, height=600, N=1):
+    def __init__(self, x0, y0, r, N):
         pygame.init()
-        self.width = width
-        self.height = height
+        pygame.display.set_caption("Bresenham Circle Drawing")
+        self.width = 600
+        self.height = 600
         self.N = N
         self.total_time = 0.0
+        self.x0 = x0
+        self.y0 = y0
+        self.r = r
         self.screen = pygame.display.set_mode((self.width, self.height))
         self.screen.fill((0, 0, 0))
         
@@ -46,28 +50,32 @@ class CircleDrawer:
     def run(self):
         running = True
         for _ in range(self.N):
-            x0 = random.randint(50, self.width - 50)
-            y0 = random.randint(50, self.height - 50)
-            r = random.randint(10, 50)
             color = self.random_color()
 
             start_time = time.time()
-            self.draw_circle(x0, y0, r, color, self.screen)
+            self.draw_circle(self.x0, self.y0, self.r, color, self.screen)
             self.total_time += time.time() - start_time
+            self.x0 = random.randint(50, self.width - 50)
+            self.y0 = random.randint(50, self.height - 50)
+            self.r = random.randint(10, 100)
 
             pygame.display.update()
 
+        pygame.image.save(self.screen, "bres_circles.png")
+        pygame.image.save(self.screen, "static/plot.png")
+        
+        
+        running = True
+        while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                    break
-            if not running:
-                break
-        pygame.image.save(self.screen, "bres_circles.png")
-        pygame.time.wait(2000)
+
         pygame.quit()
         print(f"Time taken to draw {self.N} circles is: {self.total_time:.3f} seconds")
+        return self.total_time
 
 if __name__ == "__main__":
-    drawer = CircleDrawer()
+    # Draw 10 circles centered at (300, 300) with radius 100
+    drawer = CircleDrawer(300, 300, 100, N=10)
     drawer.run()
